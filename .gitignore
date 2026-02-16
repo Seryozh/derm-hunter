@@ -41,8 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 # project-specific
-demo-snapshot.json
-lib/demo-snapshot.json
+# demo-snapshot.json in root is ignored (download artifact)
+# lib/demo-snapshot.json is committed for demo mode on Vercel
+/demo-snapshot.json
 markdown/
 debug/
 test-*.ts

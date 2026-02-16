@@ -127,16 +127,26 @@ async function serveDemoData(stream: boolean, encoder: TextEncoder) {
 
       const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+      // Phase 1: Discovery (~3 seconds)
       send({ type: "phase", phase: 1, label: "Discovering channels on YouTube..." });
-      await delay(800);
+      await delay(1500);
+      send({ type: "phase", phase: 1, label: `Searching dermatologist content across ${10} queries...` });
+      await delay(1500);
       send({ type: "phase", phase: 1, label: `Discovered ${result.stats.discovered} channels`, count: result.stats.discovered });
       await delay(500);
 
+      // Phase 2: Gate + Intelligence (~5 seconds with per-doctor ticks)
       send({ type: "phase", phase: 2, label: "Filtering and identifying doctors..." });
-      await delay(600);
-      send({ type: "phase", phase: 2, label: `${result.stats.identified} doctors identified`, count: result.stats.identified });
+      const discovered = result.stats.discovered;
+      for (let i = 0; i < discovered; i += Math.ceil(discovered / 12)) {
+        const batch = Math.min(i + Math.ceil(discovered / 12), discovered);
+        send({ type: "progress", phase: 2, processed: batch, total: discovered });
+        await delay(350 + Math.random() * 150);
+      }
+      send({ type: "phase", phase: 2, label: `${result.stats.identified} doctors identified, ${result.stats.gated} filtered`, count: result.stats.identified });
       await delay(500);
 
+      // Phase 3: Verification + Enrichment (~8 seconds, per-doctor)
       send({ type: "phase", phase: 3, label: "Verifying credentials and finding contact info..." });
       const total = result.doctors.length;
       for (let i = 0; i < total; i++) {
@@ -145,7 +155,7 @@ async function serveDemoData(stream: boolean, encoder: TextEncoder) {
           doctor: result.doctors[i]?.identity?.fullDisplay || result.doctors[i]?.channel?.title || "Doctor",
           tier: result.doctors[i]?.verification?.tier || "bronze",
         });
-        await delay(100 + Math.random() * 200);
+        await delay(80 + Math.random() * 120);
       }
 
       send({ type: "complete", result });

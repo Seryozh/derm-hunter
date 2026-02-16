@@ -27,7 +27,7 @@ const BENCHMARKS = {
   conversion: {
     demoToSignup: 0.25,  // 25% of demos convert
     revenuePerDoctor: 6000, // $500/month × 12 months (Future Clinic pricing)
-    apiCostPerRun: 0.68, // Measured: $0.68 per pipeline run (50 doctors)
+    apiCostPerRun: 2.15, // Measured: $2.15 per pipeline run (10-query, 68 doctors)
   },
 };
 

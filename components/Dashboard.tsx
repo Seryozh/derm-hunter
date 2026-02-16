@@ -190,8 +190,8 @@ export default function Dashboard() {
       <div className="mx-auto max-w-7xl px-6 py-6">
         {/* Demo Mode Banner */}
         {isDemo && (
-          <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            Demo Mode: Showing pre-recorded results. No API calls are made.
+          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+            <strong>Demo Mode</strong> — Showing results from a real pipeline run. No API calls are being made.
           </div>
         )}
 
