@@ -8,10 +8,9 @@ import TierBadge from "./TierBadge";
 interface Props {
   doctor: VerifiedDoctor;
   onClose: () => void;
-  isDemo?: boolean;
 }
 
-export default function DoctorProfile({ doctor, onClose, isDemo }: Props) {
+export default function DoctorProfile({ doctor, onClose }: Props) {
   const [outreach, setOutreach] = useState<OutreachAssets | null>(null);
   const [mockPage, setMockPage] = useState<MockLandingPage | null>(null);
   const [loadingOutreach, setLoadingOutreach] = useState(false);
@@ -177,25 +176,7 @@ export default function DoctorProfile({ doctor, onClose, isDemo }: Props) {
 
           {activeTab === "outreach" && (
             <div>
-              {isDemo ? (
-                <div className="space-y-3">
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
-                    <p className="text-sm font-medium text-gray-700">AI Outreach Generation</p>
-                    <p className="mt-1 text-xs text-gray-500">
-                      In live mode, this generates personalized email, LinkedIn, Doximity, and SMS
-                      outreach copy using the doctor&apos;s channel data, credentials, and content
-                      themes. Disabled in demo — outreach messaging requires alignment with
-                      FutureClinic&apos;s brand voice and current GTM strategy before deployment.
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-blue-50 p-3 text-xs text-blue-700">
-                    <strong>Infrastructure ready:</strong> The outreach pipeline accepts a doctor
-                    profile and generates multi-channel copy via Claude Sonnet. The templates,
-                    tone, and value propositions would be configured in collaboration with the
-                    growth team.
-                  </div>
-                </div>
-              ) : !outreach ? (
+              {!outreach ? (
                 <button
                   onClick={handleGenerateOutreach}
                   disabled={loadingOutreach}
@@ -215,23 +196,7 @@ export default function DoctorProfile({ doctor, onClose, isDemo }: Props) {
 
           {activeTab === "mockpage" && (
             <div>
-              {isDemo ? (
-                <div className="space-y-3">
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
-                    <p className="text-sm font-medium text-gray-700">Personalized Landing Page Preview</p>
-                    <p className="mt-1 text-xs text-gray-500">
-                      Generates a mock FutureClinic landing page for each doctor — personalized
-                      with their name, specialty, subscriber proof, and suggested services.
-                      Useful for outreach to show doctors what their clinic page could look like.
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-purple-50 p-3 text-xs text-purple-700">
-                    <strong>Proof of concept:</strong> This feature demonstrates how personalized
-                    assets can be auto-generated at scale to support sales outreach. Page design
-                    would mirror FutureClinic&apos;s actual product UI.
-                  </div>
-                </div>
-              ) : !mockPage ? (
+              {!mockPage ? (
                 <button
                   onClick={handleGenerateMockPage}
                   disabled={loadingMockPage}
