@@ -26,8 +26,13 @@ const BENCHMARKS = {
   },
   conversion: {
     demoToSignup: 0.25,  // 25% of demos convert
-    revenuePerDoctor: 6000, // $500/month × 12 months (Future Clinic pricing)
-    apiCostPerRun: 2.15, // Measured: $2.15 per pipeline run (10-query, 68 doctors)
+    // FutureClinic marketplace model: patients pay ~$30/month, FC takes 25%
+    // Conservative: 100 patients/doctor in Y1 → $7.50 × 100 × 12 = $9,000/yr to FC
+    fcTakeRate: 0.25,
+    avgPatientSubscription: 30,  // $30/month (marketplace average)
+    conservativePatientsY1: 100, // Content-creator doctors with existing audiences
+    revenuePerDoctor: 9000,      // $7.50/patient/month × 100 patients × 12 months
+    apiCostPerRun: 2.15,         // Measured: $2.15 per pipeline run (10-query, 68 doctors)
   },
 };
 

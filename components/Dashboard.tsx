@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Play, Download, BarChart3, Target, Loader2, FileText, Bug, ChevronDown, Camera } from "lucide-react";
+import { Play, Download, BarChart3, Target, Loader2, FileText, Bug, ChevronDown, Camera, Info } from "lucide-react";
 import { PipelineRunResult, VerifiedDoctor } from "../lib/types";
 import { calculateProjections } from "../lib/campaign-projections";
 import { doctorsToCSV, doctorsToPlainText, pipelineToDebugText, downloadFile } from "../lib/csv-export";
@@ -152,17 +152,23 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <select
-              value={maxQueries}
-              onChange={(e) => setMaxQueries(Number(e.target.value))}
-              disabled={running}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            >
-              <option value={1}>1 query (fast test)</option>
-              <option value={3}>3 queries (balanced)</option>
-              <option value={5}>5 queries (thorough)</option>
-              <option value={10}>10 queries (full scan)</option>
-            </select>
+            {isDemo ? (
+              <span className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
+                10 queries (full scan)
+              </span>
+            ) : (
+              <select
+                value={maxQueries}
+                onChange={(e) => setMaxQueries(Number(e.target.value))}
+                disabled={running}
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              >
+                <option value={1}>1 query (fast test)</option>
+                <option value={3}>3 queries (balanced)</option>
+                <option value={5}>5 queries (thorough)</option>
+                <option value={10}>10 queries (full scan)</option>
+              </select>
+            )}
             <button
               onClick={runPipeline}
               disabled={running}
@@ -171,7 +177,7 @@ export default function Dashboard() {
               {running ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /> Running...</>
               ) : (
-                <><Play className="h-4 w-4" /> Run Pipeline</>
+                <><Play className="h-4 w-4" /> {isDemo ? "Run Demo" : "Run Pipeline"}</>
               )}
             </button>
             {isDev && result && (
@@ -190,8 +196,22 @@ export default function Dashboard() {
       <div className="mx-auto max-w-7xl px-6 py-6">
         {/* Demo Mode Banner */}
         {isDemo && (
-          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
-            <strong>Demo Mode</strong> — Showing results from a real pipeline run. No API calls are being made.
+          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+            <div className="flex items-start gap-2">
+              <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
+              <div className="text-sm text-blue-800">
+                <strong>Demo Mode</strong> — This demo replays data from a real pipeline run (245 channels
+                discovered, 68 verified doctors). No API calls are being made. Click &quot;Run Demo&quot;
+                to see the pipeline in action.
+                <p className="mt-1.5 text-xs text-blue-600">
+                  This tool is one component of a broader growth strategy for doctor acquisition.
+                  It automates the most time-consuming part — discovery and verification — at
+                  negligible cost ($2.15/run), freeing up time for high-value outreach and
+                  relationship building. Features like outreach generation are built as proof-of-concept
+                  infrastructure and are disabled in demo mode.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -404,8 +424,9 @@ export default function Dashboard() {
             <Target className="mb-4 h-12 w-12 text-gray-300" />
             <h2 className="text-lg font-semibold text-gray-700">Ready to Hunt</h2>
             <p className="mt-1 max-w-md text-sm text-gray-500">
-              Click &quot;Run Pipeline&quot; to discover dermatologist content creators on YouTube,
-              verify their credentials, and find their contact information.
+              {isDemo
+                ? "Click \"Run Demo\" to replay a real pipeline run — 245 YouTube channels scanned, 68 verified dermatologists discovered, all for $2.15 in API costs."
+                : "Click \"Run Pipeline\" to discover dermatologist content creators on YouTube, verify their credentials, and find their contact information."}
             </p>
           </div>
         )}
@@ -413,7 +434,7 @@ export default function Dashboard() {
 
       {/* Doctor Profile Slide-out */}
       {selectedDoctor && (
-        <DoctorProfile doctor={selectedDoctor} onClose={() => setSelectedDoctor(null)} />
+        <DoctorProfile doctor={selectedDoctor} onClose={() => setSelectedDoctor(null)} isDemo={isDemo} />
       )}
     </div>
   );

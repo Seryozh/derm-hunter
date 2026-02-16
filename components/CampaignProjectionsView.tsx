@@ -5,26 +5,29 @@ import { CampaignProjections } from "../lib/types";
 export default function CampaignProjectionsView({ projections }: { projections: CampaignProjections }) {
   const p = projections;
 
+  const fcCut = 0.25;
+  const avgPatientSub = 30;
+  const fcPerPatient = avgPatientSub * fcCut; // $7.50
+
   // At-scale projections: weekly runs for a year
   const weeklyRuns = 52;
   const atScaleSignups = p.signUps * weeklyRuns;
   const atScaleRevenue = atScaleSignups * p.revenuePerDoctor;
   const atScaleApiCost = p.campaignCost * weeklyRuns;
-  const breakEvenRuns = p.revenuePerDoctor > 0
-    ? Math.ceil(p.campaignCost / p.revenuePerDoctor * (1 / (p.signUps > 0 ? p.signUps / p.totalDiscovered : 0.01)))
-    : 0;
 
   return (
     <div className="space-y-4">
       {/* Strategy Context */}
       <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
         <h3 className="text-sm font-semibold text-blue-900">
-          Influencer-Doctor Acquisition Strategy
+          Influencer-Doctor Acquisition — Unit Economics
         </h3>
         <p className="mt-1 text-xs text-blue-700">
-          Future Clinic targets dermatologists with active YouTube audiences. These doctors already
-          create content, making them ideal early adopters for a telehealth platform. This pipeline
-          finds them, verifies credentials via NPI, and surfaces contact info for outreach.
+          FutureClinic is a marketplace where patients subscribe to doctors at ~${avgPatientSub}/month.
+          The platform takes a {fcCut * 100}% fee (${fcPerPatient.toFixed(2)}/patient/month).
+          Doctors with existing YouTube audiences are high-LTV targets — their content drives organic
+          patient acquisition, making each onboarded doctor worth significantly more than a
+          cold-acquired provider.
         </p>
       </div>
 
@@ -53,37 +56,34 @@ export default function CampaignProjectionsView({ projections }: { projections: 
             <div className="text-xs text-green-600">API Cost</div>
           </div>
         </div>
-        {p.signUps > 0 && (
-          <div className="mt-2 text-center text-xs text-green-700">
-            Projected revenue from {p.signUps} sign-up{p.signUps !== 1 ? "s" : ""}:{" "}
-            <strong>${p.projectedAnnualRevenue.toLocaleString()}/year</strong>{" "}
-            ($500/mo per doctor)
-          </div>
-        )}
       </div>
 
-      {/* Range of Outcomes */}
+      {/* Revenue Model */}
       <div className="rounded-lg border border-gray-200 bg-white p-4">
-        <h3 className="text-sm font-semibold text-gray-900">Range of Outcomes (per run)</h3>
+        <h3 className="text-sm font-semibold text-gray-900">Revenue per Onboarded Doctor</h3>
+        <p className="mt-1 text-xs text-gray-500">
+          Content-creator doctors convert their YouTube audience into patients. FutureClinic earns
+          ${fcPerPatient.toFixed(2)}/patient/month ({fcCut * 100}% of ${avgPatientSub}).
+        </p>
         <div className="mt-3 space-y-2">
           <OutcomeRow
-            label="Conservative (0 sign-ups)"
-            revenue="$0"
-            cost={`$${p.campaignCost.toFixed(2)}`}
-            note="Still generates verified contact list for manual outreach"
+            label="Conservative (50 patients)"
+            revenue={`$${(fcPerPatient * 50 * 12).toLocaleString()}/yr`}
+            detail="Minimal audience conversion"
+            note={`${fcPerPatient.toFixed(2)} × 50 × 12 months`}
           />
           <OutcomeRow
-            label="Expected (1 sign-up)"
-            revenue={`$${p.revenuePerDoctor.toLocaleString()}/yr`}
-            cost={`$${p.campaignCost.toFixed(2)}`}
-            note={`ROI: ${Math.round(p.revenuePerDoctor / p.campaignCost).toLocaleString()}x`}
+            label="Expected (100 patients)"
+            revenue={`$${(fcPerPatient * 100 * 12).toLocaleString()}/yr`}
+            detail="Moderate engagement, ~0.1% of 100K subs"
+            note={`${fcPerPatient.toFixed(2)} × 100 × 12 months`}
             highlight
           />
           <OutcomeRow
-            label="Optimistic (2+ sign-ups)"
-            revenue={`$${(p.revenuePerDoctor * 2).toLocaleString()}+/yr`}
-            cost={`$${p.campaignCost.toFixed(2)}`}
-            note={`ROI: ${Math.round((p.revenuePerDoctor * 2) / p.campaignCost).toLocaleString()}x`}
+            label="High-Influence (500+ patients)"
+            revenue={`$${(fcPerPatient * 500 * 12).toLocaleString()}/yr`}
+            detail="Top creators like Dr. Idriss (1.67M subs)"
+            note={`${fcPerPatient.toFixed(2)} × 500 × 12 months`}
           />
         </div>
       </div>
@@ -91,24 +91,32 @@ export default function CampaignProjectionsView({ projections }: { projections: 
       {/* Break-even and Scale */}
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-          <h4 className="text-xs font-semibold text-amber-900">Break-Even Context</h4>
-          <div className="mt-2 text-2xl font-bold text-amber-700">1 sign-up</div>
+          <h4 className="text-xs font-semibold text-amber-900">Cost to Acquire Leads</h4>
+          <div className="mt-2 text-2xl font-bold text-amber-700">${p.campaignCost.toFixed(2)}</div>
           <p className="mt-1 text-xs text-amber-700">
-            A single converted doctor ($6K/yr) pays for{" "}
-            <strong>{Math.round(6000 / p.campaignCost).toLocaleString()}</strong> pipeline runs
+            API cost for {p.totalDiscovered} verified doctors with contact info
+          </p>
+          <p className="mt-1 text-xs text-amber-600">
+            ${(p.campaignCost / p.totalDiscovered).toFixed(3)}/doctor — 1 sign-up pays
+            for <strong>{Math.round(p.revenuePerDoctor / p.campaignCost).toLocaleString()}</strong> pipeline runs
           </p>
         </div>
         <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-4">
           <h4 className="text-xs font-semibold text-indigo-900">At Scale (weekly runs, 1 yr)</h4>
           <div className="mt-2 text-2xl font-bold text-indigo-700">
-            ${atScaleRevenue > 1000 ? `${Math.round(atScaleRevenue / 1000)}K` : atScaleRevenue}/yr
+            {(p.totalDiscovered * weeklyRuns).toLocaleString()} leads
           </div>
           <p className="mt-1 text-xs text-indigo-700">
-            {weeklyRuns} runs x ~{p.totalDiscovered} doctors = {p.totalDiscovered * weeklyRuns} leads/yr
+            {weeklyRuns} runs × {p.totalDiscovered} doctors/run
           </p>
           <p className="text-xs text-indigo-600">
             Total API cost: ${atScaleApiCost.toFixed(0)}/yr
           </p>
+          {atScaleSignups > 0 && (
+            <p className="text-xs text-indigo-600">
+              Est. {atScaleSignups} sign-ups → ${atScaleRevenue > 1000 ? `${Math.round(atScaleRevenue / 1000)}K` : atScaleRevenue}/yr
+            </p>
+          )}
         </div>
       </div>
 
@@ -167,9 +175,10 @@ export default function CampaignProjectionsView({ projections }: { projections: 
       <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-500">
         <strong>Sources:</strong> Email open rates from Mailchimp Healthcare avg (22%), LinkedIn
         connection acceptance from LinkedIn Sales Solutions (30%), Doximity response rates from
-        Doximity 2024 Physician Report (12%). Revenue assumes $500/mo per doctor (Future Clinic pricing).
-        API cost is measured from actual pipeline runs. These are industry averages and actual
-        results will vary based on outreach quality and targeting.
+        Doximity 2024 Physician Report (12%). Revenue model based on FutureClinic&apos;s 25%
+        marketplace fee on ~$30/month patient subscriptions. API cost is measured from actual
+        pipeline runs. These are industry averages — actual results will vary based on outreach
+        quality and targeting.
       </div>
     </div>
   );
@@ -178,13 +187,13 @@ export default function CampaignProjectionsView({ projections }: { projections: 
 function OutcomeRow({
   label,
   revenue,
-  cost,
+  detail,
   note,
   highlight,
 }: {
   label: string;
   revenue: string;
-  cost: string;
+  detail: string;
   note: string;
   highlight?: boolean;
 }) {
@@ -192,11 +201,11 @@ function OutcomeRow({
     <div className={`flex items-center justify-between rounded-lg px-3 py-2 ${highlight ? "bg-green-50" : "bg-gray-50"}`}>
       <div>
         <div className={`text-xs font-medium ${highlight ? "text-green-900" : "text-gray-700"}`}>{label}</div>
-        <div className="text-[10px] text-gray-500">{note}</div>
+        <div className="text-[10px] text-gray-500">{detail}</div>
       </div>
       <div className="text-right">
         <div className={`text-sm font-bold ${highlight ? "text-green-700" : "text-gray-900"}`}>{revenue}</div>
-        <div className="text-[10px] text-gray-500">Cost: {cost}</div>
+        <div className="text-[10px] text-gray-400">{note}</div>
       </div>
     </div>
   );
@@ -225,7 +234,7 @@ function FunnelCard({
         {steps.map((step, i) => (
           <div key={step.label} className="flex justify-between text-xs">
             <span className="text-gray-600">
-              {i > 0 ? "→ " : ""}{step.label}
+              {i > 0 ? "\u2192 " : ""}{step.label}
             </span>
             <span className="font-medium text-gray-900">{step.value}</span>
           </div>
