@@ -32,6 +32,7 @@ yarn-error.log*
 # env files (API keys must never be committed)
 .env*
 !.env.example
+!.env.production
 
 # vercel
 .vercel
